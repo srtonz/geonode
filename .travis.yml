@@ -176,6 +176,7 @@ branches:
     - 2.10.x
     - 2.8.x
     - 2.6.x
+    - python3-upgrade
 
 before_install:
   - if [ "$TEST_RUN_SELENIUM" = "True" ]; then
@@ -273,8 +274,3 @@ after_script:
 after_success:
   - codecov
   - bash <(curl -s https://codecov.io/bash) -t 2c0e7780-1640-45f0-93a3-e103b057d8c8
-
-notifications:
-  email:
-    - alessio.fabiani@gmail.com
-  slack: geonode-sprint:oQylJRkU9feZ8JruGi6czWwe
