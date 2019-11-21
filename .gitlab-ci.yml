@@ -28,7 +28,7 @@ test:
     #- bash scripts/misc/qgis_server_setup.sh before_script
   
   script:
-      - psql -h "127.0.0.1" -U runner -d geonode-dev -c "SELECT 1;"
+    - psql -h "127.0.0.1" -U runner -d geonode-dev -c "SELECT 1;"
     - export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
     # - export PATH=$JAVA_HOME'bin/java':$PATH
     # - apt update
