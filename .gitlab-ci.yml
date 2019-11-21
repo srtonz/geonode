@@ -12,9 +12,11 @@ variables:
 
 test:
   services:
-    - name: mdillon/postgis:9.6
-      alias: postgis
+    - name: postgres
   script:
+    - apt update
+    - apt install net-tools
+    - netstat -puntal
     - psql -h "127.0.0.1" -U runner -d geonode-dev -c "create extension postgis"
     # - export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
     # - export PATH=$JAVA_HOME'bin/java':$PATH
