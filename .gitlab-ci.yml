@@ -11,6 +11,7 @@ variables:
     POSTGRES_PASSWORD: ""
 
 test:
+  image: postgres
   script:
     - psql -h "postgis" -U runner -d geonode-dev -c "create extension postgis"
     # - export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
