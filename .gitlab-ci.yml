@@ -2,7 +2,7 @@ default:
   image: gitlab.catalyst.net.nz:4567/giscore/geonode/tests/base:1
 
 services:
-  - name: mdillon/postgis:9.6
+  - name: postgres
     alias: postgis
 
 variables:
