@@ -6,7 +6,7 @@ default:
 
   before_script:
     - echo "Initialize DB"
-    - psql -h mdillon/postgis -U runner -d geonode-dev -c "create extension postgis"
+    - psql -h postgis -U runner -d geonode-dev -c "create extension postgis"
 
 variables:
     POSTGRES_DB: geonode-dev
