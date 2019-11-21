@@ -1,8 +1,8 @@
 default:
-  image: gitlab.wgtn.cat-it.co.nz:4567/gis/upstream/geonode/tests/base
+  image: gitlab.catalyst.net.nz:4567/giscore/geonode/tests/base:latest
 
   services:
-    - gitlab.wgtn.cat-it.co.nz:4567/gis/upstream/geonode/tests/postgis
+    - gitlab.catalyst.net.nz:4567/giscore/geonode/tests/postgis:latest
 
 test:
   script:
