@@ -1,0 +1,9 @@
+default:
+  image: gitlab.wgtn.cat-it.co.nz:4567/gis/upstream/geonode/tests/base
+
+  services:
+    - gitlab.wgtn.cat-it.co.nz:4567/gis/upstream/geonode/tests/postgis
+
+test:
+  script:
+  - echo "Hello World"
