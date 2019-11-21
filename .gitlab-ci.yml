@@ -2,7 +2,8 @@ default:
   image: gitlab.catalyst.net.nz:4567/giscore/geonode/tests/base:1
 
 services:
-  - mdillon/postgis:9.6
+  - name: mdillon/postgis:9.6
+    alias: postgis
 
 variables:
     POSTGRES_DB: geonode-dev
@@ -12,7 +13,7 @@ variables:
 test:
   script:
     - echo "Hello World"
-    - psql -h mdillon__postgis -U runner -d geonode-dev -c "create extension postgis"
+    - psql -h postgis -U runner -d geonode-dev -c "create extension postgis"
     # - export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
     # - export PATH=$JAVA_HOME'bin/java':$PATH
     # - apt update
