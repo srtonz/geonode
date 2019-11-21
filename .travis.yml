@@ -228,11 +228,8 @@ install:
     fi
 
 before_script:
-  - if [ "$TEST_RUN_SELENIUM" = "True" ]; then
-      sudo service nginx stop;
-    else
-      echo "Initialize DB";
-      psql -U postgres -c "create extension postgis";
+  - echo "Initialize DB";
+  - psql -h postgres -U runner -c "create extension postgis";
       chmod +x scripts/misc/create_dbs_travis.sh;
       scripts/misc/create_dbs_travis.sh before_script;
       echo "For GeoServer Server Travis steps";

@@ -1,6 +1,9 @@
 default:
   image: gitlab.catalyst.net.nz:4567/giscore/geonode/tests/base:1
 
+  services:
+    - name: mdillon/postgis:9.6
+      alias: postgis
 
 variables:
     POSTGRES_DB: geonode-dev
@@ -11,21 +14,29 @@ variables:
 
 
 test:
-  services:
-    - name: mdillon/postgis:9.6
-      alias: postgis
+  variables:
+    BACKEND: 'geonode.geoserver'
+    DOCKER_COMPOSE_VERSION: 1.19.0
+    ON_TRAVIS: 'True'
+    TEST_RUN_CORE: 'True'
+    MONITORING_ENABLED: 'False'
+    SESSION_EXPIRED_CONTROL_ENABLED: 'True'
+
+  before_script:
+    - bash scripts/misc/create_dbs_travis.sh before_script
+    #- bash scripts/misc/geoserver_server_setup.sh before_script
+    #- bash scripts/misc/qgis_server_setup.sh before_script
+  
   script:
+    - export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
+    - export PATH=$JAVA_HOME'bin/java':$PATH
     - apt update
-    - apt install
-    - psql -h "127.0.0.1" -U runner -d geonode-dev -c "create extension postgis"
-    # - export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
-    # - export PATH=$JAVA_HOME'bin/java':$PATH
-    # - apt update
-    # - apt install -y python-virtualenv
-    # - virtualenv env/
-    # - source env/bin/activate
-    # - pip install -U pip
-    # - pip install -r requirements.txt --upgrade
-    # - pip install -e .
-    # - pip install pygdal==`gdal-config --version`.*
-    # - pip install codecov
+    - apt install -y python-virtualenv
+    - virtualenv env/
+    - source env/bin/activate
+    - pip install -U pip
+    - pip install -r requirements.txt --upgrade
+    - pip install -e .
+    - pip install pygdal==`gdal-config --version`.*
+    - pip install codecov
+    
