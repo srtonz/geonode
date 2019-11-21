@@ -10,7 +10,8 @@ variables:
 
 test:
   services:
-    - name: postgres
+    - mdillon/postgis:9.6
+
 
   variables:
     BACKEND: 'geonode.geoserver'
