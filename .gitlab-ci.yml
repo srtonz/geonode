@@ -15,8 +15,7 @@ variables:
 
 test:
   script:
-    - cat /etc/hosts
-    - psql -h "$(cat /etc/hosts |grep mdillon_postgis|cut -d$'\t' -f1)" -U runner -d geonode-dev -c "create extension postgis"
+    - psql -h "127.0.0.1" -U runner -d geonode-dev -c "create extension postgis"
     # - export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
     # - export PATH=$JAVA_HOME'bin/java':$PATH
     # - apt update
