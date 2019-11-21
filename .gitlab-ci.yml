@@ -1,8 +1,8 @@
 default:
   image: gitlab.catalyst.net.nz:4567/giscore/geonode/tests/base:1
 
-  services:
-    - mdillon/postgis:9.6
+services:
+  - mdillon/postgis:9.6
 
 variables:
     POSTGRES_DB: geonode-dev
