@@ -12,8 +12,7 @@ variables:
 
 test:
   script:
-    - echo "Hello World"
-    - psql -h postgis -U runner -d geonode-dev -c "create extension postgis"
+    - psql -h "postgis" -U runner -d geonode-dev -c "create extension postgis"
     # - export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
     # - export PATH=$JAVA_HOME'bin/java':$PATH
     # - apt update
