@@ -1,5 +1,5 @@
 default:
-  image: gitlab.catalyst.net.nz:4567/giscore/geonode/tests/base:latest
+  image: gitlab.catalyst.net.nz:4567/giscore/geonode/tests/base:1
 
   services:
     - mdillon/postgis:9.6
