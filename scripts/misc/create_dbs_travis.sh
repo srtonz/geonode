@@ -13,6 +13,7 @@ if [ "$BACKEND" = "geonode.geoserver" ]; then
 			export GEONODE_PROJECT_PATH=$TRAVIS_BUILD_DIR
       while true; do
         psql -h "127.0.0.1" -U runner -d geonode-dev -c "SELECT 1;" && break
+        sleep 1
       done
 
       createuser -h "127.0.0.1" -U runner geonode -d -s
@@ -26,6 +27,7 @@ if [ "$BACKEND" = "geonode.geoserver" ]; then
       createdb -h "127.0.0.1" -U runner -T template_postgis -O geonode geonode_data
       createdb -h "127.0.0.1" -U runner -T template_postgis -O geonode upload_test
 			;;
+    
 		"after_script")
 			;;
 	esac

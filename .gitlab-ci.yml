@@ -11,6 +11,7 @@ variables:
 test:
   services:
     - mdillon/postgis:9.6
+    - docker:dind
 
 
   variables:
@@ -23,12 +24,12 @@ test:
 
   before_script:
     - bash scripts/misc/create_dbs_travis.sh before_script
-    #- bash scripts/misc/geoserver_server_setup.sh before_script
+    - bash scripts/misc/geoserver_server_setup.sh before_script
     #- bash scripts/misc/qgis_server_setup.sh before_script
   
   script:
-    - psql -h "127.0.0.1" -U runner -d geonode-dev -c "SELECT 1;"
     - export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
+    - pip install docker-compose==$DOCKER_COMPOSE_VERSION
     # - export PATH=$JAVA_HOME'bin/java':$PATH
     # - apt update
     # - apt install -y python-virtualenv
