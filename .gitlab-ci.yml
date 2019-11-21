@@ -10,8 +10,8 @@ default:
     POSTGRES_PASSWORD: ""
 
   before_script:
-    - echo "Initialize DB";
-    - psql -h mdillon/postgis -U runner -c "create extension postgis";
+    - echo "Initialize DB"
+    - psql -h mdillon/postgis -U runner -c "create extension postgis"
 
 
 test:
