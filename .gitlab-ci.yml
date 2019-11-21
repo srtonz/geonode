@@ -8,6 +8,8 @@ test:
   script:
     - export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
     - export PATH=$JAVA_HOME'bin/java':$PATH
+    - apt update
+    - apt install -y python-pip
     - pip install -r requirements.txt --upgrade
     - pip install -e .
     - pip install pygdal==`gdal-config --version`.*
