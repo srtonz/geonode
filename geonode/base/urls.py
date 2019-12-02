@@ -35,7 +35,6 @@ if hasattr(settings, 'THESAURUS') and settings.THESAURUS:
     ac_name = 'thesaurus_' + tname
 
     logger.debug('Registering thesaurus autocomplete for {}: {}'.format(tname, ac_name))
-    print('got here')
 
     urlpatterns.append(
         url(

@@ -3871,6 +3871,44 @@ tbody.collapse.in {
   clip: rect(0, 0, 0, 0);
   pointer-events: none;
 }
+
+
+/** Autocomplete styling **/
+.autocomplete-input #text_search_input, .autocomplete-input #region_search_input {
+    width: 100%;
+}
+
+.autocomplete-input .ac-results {
+    position: absolute;
+    border: 1px solid #eeeeee;
+    border-top: none;
+    width: 210px;
+    margin-top: 0px;
+    z-index: 10;
+}
+
+.autocomplete-input .ac-results .result-wrapper {
+    border-bottom: 1px solid #eeeeee;
+    padding: 3px;
+    background-color: white;
+}
+
+.autocomplete-input .ac-results .result-wrapper:hover {
+  background-color: #eeeeee;
+  opacity: 1;
+}
+
+.autocomplete-input .ac-results .result-wrapper:last-child {
+  border-bottom: none;
+}
+
+.autocomplete-input .ac-results .result-wrapper .ac-result {
+  border: none;
+  text-decoration: none;
+  color: black;
+  padding: 0px;
+}
+
 .input-group {
   position: relative;
   display: table;
