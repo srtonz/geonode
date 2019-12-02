@@ -25,9 +25,9 @@ from django.core.management import call_command
 from django.template.response import TemplateResponse
 
 import StringIO
-from autocomplete_light.forms import ModelForm
-from autocomplete_light.forms import modelform_factory
-from autocomplete_light.contrib.taggit_field import TaggitField, TaggitWidget
+
+from dal import autocomplete
+from django import forms
 
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
@@ -82,7 +82,7 @@ class MediaTranslationAdmin(TranslationAdmin):
         }
 
 
-class BackupAdminForm(ModelForm):
+class BackupAdminForm(forms.ModelForm):
 
     class Meta:
         model = Backup
@@ -245,7 +245,7 @@ class ContactRoleAdmin(admin.ModelAdmin):
     list_display_links = ('id',)
     list_display = ('id', 'contact', 'resource', 'role')
     list_editable = ('contact', 'resource', 'role')
-    form = modelform_factory(ContactRole, fields='__all__')
+    form = forms.modelform_factory(ContactRole, fields='__all__')
 
 
 class LinkAdmin(admin.ModelAdmin):
@@ -254,7 +254,7 @@ class LinkAdmin(admin.ModelAdmin):
     list_display = ('id', 'resource', 'extension', 'link_type', 'name', 'mime')
     list_filter = ('resource', 'extension', 'link_type', 'mime')
     search_fields = ('name', 'resource__title',)
-    form = modelform_factory(Link, fields='__all__')
+    form = forms.modelform_factory(Link, fields='__all__')
 
 
 class HierarchicalKeywordAdmin(TreeAdmin):
@@ -297,12 +297,23 @@ admin.site.register(MenuItem, MenuItemAdmin)
 admin.site.register(CuratedThumbnail, CuratedThumbnailAdmin)
 
 
-class ResourceBaseAdminForm(ModelForm):
+class ResourceBaseAdminForm(autocomplete.FutureModelForm):
     # We need to specify autocomplete='TagAutocomplete' or admin views like
     # /admin/maps/map/2/ raise exceptions during form rendering.
     # But if we specify it up front, TaggitField.__init__ throws an exception
     # which prevents app startup. Therefore, we defer setting the widget until
     # after that's done.
-    keywords = TaggitField(required=False)
-    keywords.widget = TaggitWidget(
-        autocomplete='HierarchicalKeywordAutocomplete')
+
+
+    # keywords = TaggitField(required=False)
+    # keywords.widget = TaggitWidget(
+    #     autocomplete='HierarchicalKeywordAutocomplete')
+
+    # TODO Autocomplete Not entirely sure if this new way is correct not sure how to test...
+    # Think this is actually working now possibly.
+    class Meta:
+        widgets = {
+            'tags': autocomplete.TaggitSelect2(
+                'HierarchicalKeywordAutocomplete'
+            )
+        }

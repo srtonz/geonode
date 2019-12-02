@@ -18,80 +18,66 @@
 #
 #########################################################################
 
-import logging
-
-from autocomplete_light.registry import register
-from autocomplete_light.autocomplete.shortcuts import AutocompleteModelBase, AutocompleteModelTemplate
+from dal import autocomplete
 
 from guardian.shortcuts import get_objects_for_user
 from django.conf import settings
-from django.db.models import Q
 from geonode.security.utils import get_visible_resources
 
 from models import ResourceBase, Region, HierarchicalKeyword, ThesaurusKeywordLabel
 
-logger = logging.getLogger(__name__)
 
+class ResourceBaseAutocomplete(autocomplete.Select2QuerySetView):
 
-class ResourceBaseAutocomplete(AutocompleteModelTemplate):
-    choice_template = 'autocomplete_response.html'
-    model = ResourceBase
-
-    def choices_for_request(self):
+    def get_queryset(self):
         request = self.request
-        permitted = get_objects_for_user(
-            request.user,
-            'base.view_resourcebase')
-        self.choices = self.choices.filter(id__in=permitted)
 
-        self.choices = get_visible_resources(
-            self.choices,
+        permitted = get_objects_for_user(request.user, 'base.view_resourcebase')
+        qs = ResourceBase.objects.all().filter(id__in=permitted)
+
+        if self.q:
+            qs = qs.filter(title__icontains=self.q).order_by('title')[:100]
+            
+        return get_visible_resources(
+            qs,
             request.user if request else None,
             admin_approval_required=settings.ADMIN_MODERATE_UPLOADS,
             unpublished_not_visible=settings.RESOURCE_PUBLISHING,
             private_groups_not_visibile=settings.GROUP_PRIVATE_RESOURCES)
 
-        return super(ResourceBaseAutocomplete, self).choices_for_request()
+
+class RegionAutocomplete(autocomplete.Select2QuerySetView):
+
+    def get_queryset(self):
+        qs = Region.objects.all()
+
+        if self.q:
+            qs = qs.filter(name__icontains=self.q)
+        
+        return qs
 
 
-register(Region,
-         search_fields=['name'],
-         autocomplete_js_attributes={'placeholder': 'Region/Country ..', },)
+class HierarchicalKeywordAutocomplete(autocomplete.Select2QuerySetView):
 
-register(ResourceBaseAutocomplete,
-         search_fields=['title'],
-         order_by=['title'],
-         limit_choices=100,
-         autocomplete_js_attributes={'placeholder': 'Resource name..', },)
+    def get_queryset(self):
+        qs = HierarchicalKeyword.objects.all()
 
-register(HierarchicalKeyword,
-         search_fields=['name', 'slug'],
-         autocomplete_js_attributes={'placeholder':
-                                     'A space or comma-separated list of keywords', },)
+        if self.q:
+            qs = qs.filter(slug__icontains=self.q)
+        
+        return qs
 
 
-class ThesaurusKeywordLabelAutocomplete(AutocompleteModelBase):
+class ThesaurusKeywordLabelAutocomplete(autocomplete.Select2QuerySetView):
 
-    search_fields = ['label']
-
-    model = ThesaurusKeywordLabel
-
-    def choices_for_request(self):
-
-        lang = 'en'  # TODO: use user's language
-        self.choices = self.choices.filter(lang=lang)
-        return super(ThesaurusKeywordLabelAutocomplete, self).choices_for_request()
+    def get_queryset(self):
+        thesaurus = settings.THESAURUS
+        tname = thesaurus['name']
+        lang = 'en'
+        ThesaurusKeywordLabel.objects.all().filter(lang=lang)
 
 
-if hasattr(settings, 'THESAURUS') and settings.THESAURUS:
-    thesaurus = settings.THESAURUS
-    tname = thesaurus['name']
-    ac_name = 'thesaurus_' + tname
-
-    logger.debug('Registering thesaurus autocomplete for {}: {}'.format(tname, ac_name))
-
-    register(
-        ThesaurusKeywordLabelAutocomplete,
-        name=ac_name,
-        choices=ThesaurusKeywordLabel.objects.filter(Q(keyword__thesaurus__identifier=tname))
-    )
+        if self.q:
+            qs = qs.filter(keyword__thesaurus__identifier=tname)
+        
+        return qs

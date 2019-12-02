@@ -19,19 +19,22 @@
 #########################################################################
 
 from django.conf import settings
-from autocomplete_light.widgets import MultipleChoiceWidget
+# from autocomplete_light.widgets import MultipleChoiceWidget
 
+from dal_select2 import widgets
 
-class MultiThesaurusWidget(MultipleChoiceWidget):
+# TODO Autocomplete Root problem with thesaurus not working... not sure what widget model to use with new library.
+class MultiThesaurusWidget(widgets.Select2Multiple):
 
     def __init__(self, attrs=None):
-        if hasattr(settings, 'THESAURUS') and settings.THESAURUS:
-            el = settings.THESAURUS
-            widget_name = el['name']
-            cleaned_name = el['name'].replace("-", " ").replace("_", " ").title()
-            super(MultiThesaurusWidget, self).__init__(
-                'thesaurus_' + widget_name,
-                attrs={'placeholder': '%s - Start typing for suggestions' % cleaned_name},
-                extra_context={'thesauri_title': cleaned_name})
-        else:
-            super(MultiThesaurusWidget, self).__init__([], attrs)
+        # if hasattr(settings, 'THESAURUS') and settings.THESAURUS:
+        #     el = settings.THESAURUS
+        #     print(el)
+        #     widget_name = el['name']
+        #     cleaned_name = el['name'].replace("-", " ").replace("_", " ").title()
+        #     super(MultiThesaurusWidget, self).__init__(
+        #         'thesaurus_' + widget_name,
+        #         attrs={'placeholder': '%s - Start typing for suggestions' % cleaned_name})
+        #         # extra_context={'thesauri_title': cleaned_name})
+        # else:
+        return super(MultiThesaurusWidget, self).__init__([], attrs)

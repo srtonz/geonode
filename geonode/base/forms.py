@@ -23,8 +23,7 @@ import traceback
 
 from .fields import MultiThesauriField
 
-from autocomplete_light.widgets import ChoiceWidget
-from autocomplete_light.contrib.taggit_field import TaggitField, TaggitWidget
+from dal import autocomplete
 
 from django import forms
 from django.conf import settings
@@ -110,29 +109,29 @@ class CategoryChoiceField(forms.ModelChoiceField):
                'data-content="' + obj.description + '" trigger="hover">' \
                '<br/><strong>' + obj.gn_description + '</strong></span>'
 
+# TODO Autocomplete not sure what to do here...
+# class TreeWidget(TaggitWidget):
+#     input_type = 'text'
 
-class TreeWidget(TaggitWidget):
-    input_type = 'text'
+#     def render(self, name, value, attrs=None):
+#         if isinstance(value, basestring):
+#             vals = value
+#         elif value:
+#             vals = ','.join([i.tag.name for i in value])
+#         else:
+#             vals = ""
+#         output = ["""<div class="keywords-container"><span class="input-group">
+#                 <input class="form-control"
+#                        id="id_resource-keywords"
+#                        name="resource-keywords"
+#                        value="%s"><br/>""" % (vals)]
+#         output.append(
+#             '<div id="treeview" class="" style="display: none"></div>')
+#         output.append(
+#             '<span class="input-group-addon" id="treeview-toggle"><i class="fa fa-folder"></i></span>')
+#         output.append('</span></div>')
 
-    def render(self, name, value, attrs=None):
-        if isinstance(value, basestring):
-            vals = value
-        elif value:
-            vals = ','.join([i.tag.name for i in value])
-        else:
-            vals = ""
-        output = ["""<div class="keywords-container"><span class="input-group">
-                <input class="form-control"
-                       id="id_resource-keywords"
-                       name="resource-keywords"
-                       value="%s"><br/>""" % (vals)]
-        output.append(
-            '<div id="treeview" class="" style="display: none"></div>')
-        output.append(
-            '<span class="input-group-addon" id="treeview-toggle"><i class="fa fa-folder"></i></span>')
-        output.append('</span></div>')
-
-        return mark_safe(u'\n'.join(output))
+#         return mark_safe(u'\n'.join(output))
 
 
 class RegionsMultipleChoiceField(forms.MultipleChoiceField):
@@ -293,11 +292,13 @@ class CategoryForm(forms.Form):
 
 
 class TKeywordForm(forms.Form):
-    tkeywords = MultiThesauriField(
-        label=_("Keywords from Thesaurus"),
-        required=False,
-        help_text=_("List of keywords from Thesaurus"))
-
+    # TODO Autocomplete Fix this when MultiThesauriField is fixed
+    # tkeywords = MultiThesauriField(
+    #     label=_("Keywords from Thesaurus"),
+    #     required=False,
+    #     help_text=_("List of keywords from Thesaurus"))
+    tkeywords = forms.CharField(max_length=10, required=False) 
+   
     def __init__(self, *args, **kwargs):
         super(TKeywordForm, self).__init__(*args, **kwargs)
         initial_arguments = kwargs.get('initial', None)
@@ -336,9 +337,8 @@ class ResourceBaseForm(TranslationModelForm):
         empty_label="Owner",
         label=_("Owner"),
         required=False,
-        queryset=Profile.objects.exclude(
-            username='AnonymousUser'),
-        widget=ChoiceWidget('ProfileAutocomplete'))
+        queryset=Profile.objects.exclude(username='AnonymousUser'),
+        widget=autocomplete.ModelSelect2(url='autocomplete_profile'))
 
     date = forms.DateTimeField(
         label=_("Date"),
@@ -367,7 +367,7 @@ class ResourceBaseForm(TranslationModelForm):
         required=False,
         queryset=Profile.objects.exclude(
             username='AnonymousUser'),
-        widget=ChoiceWidget('ProfileAutocomplete'))
+        widget=autocomplete.ModelSelect2(url='autocomplete_profile'))
 
     metadata_author = forms.ModelChoiceField(
         empty_label=_("Person outside GeoNode (fill form)"),
@@ -375,22 +375,16 @@ class ResourceBaseForm(TranslationModelForm):
         required=False,
         queryset=Profile.objects.exclude(
             username='AnonymousUser'),
-        widget=ChoiceWidget('ProfileAutocomplete'))
+        widget=autocomplete.ModelSelect2(url='autocomplete_profile'))
 
-    keywords = TaggitField(
-        label=_("Free-text Keywords"),
-        required=False,
-        help_text=_("A space or comma-separated list of keywords. Use the widget to select from Hierarchical tree."),
-        widget=TreeWidget(
-            autocomplete='HierarchicalKeywordAutocomplete'))
+    # Think this might be redundant since there is already an autocomplete they seem to display the same things.
+    # keywords = TaggitField(
+    #     label=_("Free-text Keywords"),
+    #     required=False,
+    #     help_text=_("A space or comma-separated list of keywords. Use the widget to select from Hierarchical tree."),
+    #     widget=TreeWidget(
+    #         autocomplete='HierarchicalKeywordAutocomplete'))
 
-    """
-    regions = TreeNodeMultipleChoiceField(
-        label=_("Regions"),
-        required=False,
-        queryset=Region.objects.all(),
-        level_indicator=u'___')
-    """
     regions = RegionsMultipleChoiceField(
         label=_("Regions"),
         required=False,

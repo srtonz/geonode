@@ -31,6 +31,7 @@ from .widgets import MultiThesaurusWidget
 logger = logging.getLogger(__name__)
 
 
+# TODO Autocomplete Need to fix this somehow as well... need to fix MultiValueField...
 class MultiThesauriField(forms.MultiValueField):
 
     widget = MultiThesaurusWidget()

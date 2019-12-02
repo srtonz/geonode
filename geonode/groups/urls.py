@@ -22,6 +22,7 @@ from django.conf.urls import url
 from django.views.generic import TemplateView
 
 from .views import GroupDetailView, GroupActivityView
+from .autocomplete_light_registry import GroupProfileAutocomplete, GroupCategoryAutocomplete
 from . import views
 
 urlpatterns = [  # 'geonode.groups.views',
@@ -56,4 +57,8 @@ urlpatterns = [  # 'geonode.groups.views',
         views.group_join, name='group_join'),
     url(r'^group/(?P<slug>[-\w]+)/activity/$',
         GroupActivityView.as_view(), name='group_activity'),
+    url(r'^autocomplete/$',
+        GroupProfileAutocomplete.as_view(), name='autocomplete_groups'),
+    url(r'^autocomplete_category/$',
+        GroupCategoryAutocomplete.as_view(), name='autocomplete_category'),
 ]

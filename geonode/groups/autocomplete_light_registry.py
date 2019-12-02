@@ -18,17 +18,31 @@
 #
 #########################################################################
 
-from autocomplete_light.registry import register
-from autocomplete_light.autocomplete.shortcuts import AutocompleteModelTemplate
-from .models import GroupProfile
+from django.db.models import Q
+from dal import autocomplete
+
+from .models import GroupProfile, GroupCategory
 
 
-class GroupProfileAutocomplete(AutocompleteModelTemplate):
-    choice_template = 'autocomplete_response.html'
+class GroupProfileAutocomplete(autocomplete.Select2QuerySetView):
+
+    def get_queryset(self):
+        qs = GroupProfile.objects.all()
+
+        if self.q:
+            qs = qs.filter(Q(title__istartswith=self.q))
+        
+        return qs
+
+class GroupCategoryAutocomplete(autocomplete.Select2QuerySetView):
+
+    def get_queryset(self):
+
+        qs = GroupCategory.objects.all()
 
 
-register(
-    GroupProfile,
-    GroupProfileAutocomplete,
-    search_fields=['title'],
-)
+        if self.q:
+            qs = qs.filter(Q(name__icontains=self.q))
+        
+        return qs
+
