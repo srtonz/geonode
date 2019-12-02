@@ -48,7 +48,7 @@ PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
 # Setting debug to true makes Django serve static media and
 # present pretty error pages.
-DEBUG = ast.literal_eval(os.getenv('DEBUG', 'True'))
+DEBUG = ast.literal_eval(os.getenv('DEBUG', 'False'))
 
 # Set to True to load non-minified versions of (static) client dependencies
 # Requires to set-up Node and tools that are required for static development
@@ -352,7 +352,8 @@ INSTALLED_APPS = (
     'bootstrap3_datetime',
     'django_filters',
     'django_basic_auth',
-    'autocomplete_light',
+    'dal',
+    'dal_select2',
     'mptt',
     'storages',
     'floppyforms',
@@ -1799,7 +1800,7 @@ if os.name == 'nt':
 # e.g. THESAURUS = {'name':'inspire_themes', 'required':True, 'filter':True}
 # Required: (boolean, optional, default false) mandatory while editing metadata (not implemented yet)
 # Filter: (boolean, optional, default false) a filter option on that thesaurus will appear in the main search page
-# THESAURUS = {'name': 'inspire_themes', 'required': True, 'filter': True}
+THESAURUS = {'name': 'inspire_themes', 'required': True, 'filter': True}
 
 # Each uploaded Layer must be approved by an Admin before becoming visible
 ADMIN_MODERATE_UPLOADS = ast.literal_eval(os.environ.get('ADMIN_MODERATE_UPLOADS', 'False'))
