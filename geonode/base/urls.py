@@ -3,7 +3,9 @@ import logging
 from django.conf.urls import url
 from django.conf import settings
 
-from geonode.base.autocomplete_light_registry import ResourceBaseAutocomplete, RegionAutocomplete, HierarchicalKeywordAutocomplete, ThesaurusKeywordLabelAutocomplete
+from geonode.base.autocomplete_light_registry import (
+    ResourceBaseAutocomplete, RegionAutocomplete,
+    HierarchicalKeywordAutocomplete, ThesaurusKeywordLabelAutocomplete)
 
 logger = logging.getLogger(__name__)
 

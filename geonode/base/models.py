@@ -59,7 +59,7 @@ from geonode.utils import forward_mercator
 from geonode.security.models import PermissionLevelMixin
 from taggit.managers import TaggableManager, _TaggableManager
 from taggit.models import TagBase, ItemBase
-from treebeard.mp_tree import MP_Node
+from treebeard.mp_tree import MP_Node, MP_NodeQuerySet, MP_NodeManager
 
 from geonode.people.enumerations import ROLE_VALUES
 
@@ -305,8 +305,25 @@ class License(models.Model):
         verbose_name_plural = 'Licenses'
 
 
+class HierarchicalKeywordQuerySet(MP_NodeQuerySet):
+    """QuerySet to automatically create a root node if `depth` not given."""
+
+    def create(self, **kwargs):
+        if 'depth' not in kwargs:
+            return self.model.add_root(**kwargs)
+        return super(HierarchicalKeywordQuerySet, self).create(**kwargs)
+
+
+class HierarchicalKeywordManager(MP_NodeManager):
+
+    def get_queryset(self):
+        return HierarchicalKeywordQuerySet(self.model).order_by('path')
+
+
 class HierarchicalKeyword(TagBase, MP_Node):
     node_order_by = ['name']
+
+    objects = HierarchicalKeywordManager()
 
     @classmethod
     def dump_bulk_tree(cls, parent=None, keep_ids=True):
@@ -368,7 +385,6 @@ class TaggedContentItem(ItemBase):
 
 
 class _HierarchicalTagManager(_TaggableManager):
-
     def add(self, *tags):
         str_tags = set([
             t

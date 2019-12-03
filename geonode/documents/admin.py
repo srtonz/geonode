@@ -28,7 +28,6 @@ from geonode.base.admin import metadata_batch_edit
 
 
 class DocumentAdminForm(ResourceBaseAdminForm):
-
     class Meta(ResourceBaseAdminForm.Meta):
         model = Document
         fields = '__all__'
