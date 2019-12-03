@@ -22,9 +22,9 @@ urlpatterns = [
     ),
 
     url(
-        r'^autocomplete_heirachical_keyword/$',
+        r'^autocomplete_hierachical_keyword/$',
         HierarchicalKeywordAutocomplete.as_view(),
-        name='autocomplete_heirachical_keyword',
+        name='autocomplete_hierachical_keyword',
     ),
 ]
 

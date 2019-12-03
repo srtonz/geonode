@@ -326,13 +326,16 @@ GEONODE_APPS = GEONODE_CORE_APPS + GEONODE_INTERNAL_APPS + GEONODE_CONTRIB_APPS
 
 INSTALLED_APPS = (
 
-    'modeltranslation',
 
     # Boostrap admin theme
     # 'django_admin_bootstrapped.bootstrap3',
     # 'django_admin_bootstrapped',
 
     # Apps bundled with Django
+    'dal',
+    'dal_select2',
+    'modeltranslation',
+    
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -352,8 +355,6 @@ INSTALLED_APPS = (
     'bootstrap3_datetime',
     'django_filters',
     'django_basic_auth',
-    'dal',
-    'dal_select2',
     'mptt',
     'storages',
     'floppyforms',

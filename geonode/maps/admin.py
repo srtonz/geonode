@@ -19,11 +19,13 @@
 #########################################################################
 
 from django import forms
+from django.contrib import admin
+
+from modeltranslation.admin import TabbedTranslationAdmin
 
 from geonode.maps.models import Map, MapLayer, MapSnapshot
-from geonode.base.admin import MediaTranslationAdmin, ResourceBaseAdminForm
+from geonode.base.admin import ResourceBaseAdminForm
 from geonode.base.admin import metadata_batch_edit
-from django.contrib import admin
 
 
 class MapLayerInline(admin.TabularInline):
@@ -32,12 +34,12 @@ class MapLayerInline(admin.TabularInline):
 
 class MapAdminForm(ResourceBaseAdminForm):
 
-    class Meta:
+    class Meta(ResourceBaseAdminForm.Meta):
         model = Map
         fields = '__all__'
 
 
-class MapAdmin(MediaTranslationAdmin):
+class MapAdmin(TabbedTranslationAdmin):
     inlines = [MapLayerInline, ]
     list_display_links = ('title',)
     list_display = ('id', 'title', 'owner', 'category', 'group', 'is_approved', 'is_published', 'featured',)

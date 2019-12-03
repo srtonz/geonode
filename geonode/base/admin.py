@@ -32,7 +32,7 @@ from django import forms
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
 
-from modeltranslation.admin import TranslationAdmin
+from modeltranslation.admin import TabbedTranslationAdmin
 
 from geonode.base.models import (
     TopicCategory,
@@ -70,16 +70,6 @@ def set_batch_permissions(modeladmin, request, queryset):
 
 
 set_batch_permissions.short_description = 'Set permissions'
-
-
-class MediaTranslationAdmin(TranslationAdmin):
-    class Media:
-        js = (
-            'modeltranslation/js/tabbed_translation_fields.js',
-        )
-        css = {
-            'screen': ('modeltranslation/css/tabbed_translation_fields.css',),
-        }
 
 
 class BackupAdminForm(forms.ModelForm):
@@ -162,7 +152,7 @@ run.short_description = "Run the Backup"
 restore.short_description = "Run the Restore"
 
 
-class BackupAdmin(MediaTranslationAdmin):
+class BackupAdmin(TabbedTranslationAdmin):
     list_display = ('id', 'name', 'date', 'location')
     list_display_links = ('name',)
     date_hierarchy = 'date'
@@ -171,13 +161,13 @@ class BackupAdmin(MediaTranslationAdmin):
     actions = [run, restore]
 
 
-class LicenseAdmin(MediaTranslationAdmin):
+class LicenseAdmin(TabbedTranslationAdmin):
     model = License
     list_display = ('id', 'name')
     list_display_links = ('name',)
 
 
-class TopicCategoryAdmin(MediaTranslationAdmin):
+class TopicCategoryAdmin(TabbedTranslationAdmin):
     model = TopicCategory
     list_display_links = ('identifier',)
     list_display = (
@@ -204,7 +194,7 @@ class TopicCategoryAdmin(MediaTranslationAdmin):
             return False
 
 
-class RegionAdmin(MediaTranslationAdmin):
+class RegionAdmin(TabbedTranslationAdmin):
     model = Region
     list_display_links = ('name',)
     list_display = ('code', 'name', 'parent')
@@ -212,7 +202,7 @@ class RegionAdmin(MediaTranslationAdmin):
     group_fieldsets = True
 
 
-class SpatialRepresentationTypeAdmin(MediaTranslationAdmin):
+class SpatialRepresentationTypeAdmin(TabbedTranslationAdmin):
     model = SpatialRepresentationType
     list_display_links = ('identifier',)
     list_display = ('identifier', 'description', 'gn_description', 'is_choice')
@@ -226,7 +216,7 @@ class SpatialRepresentationTypeAdmin(MediaTranslationAdmin):
         return False
 
 
-class RestrictionCodeTypeAdmin(MediaTranslationAdmin):
+class RestrictionCodeTypeAdmin(TabbedTranslationAdmin):
     model = RestrictionCodeType
     list_display_links = ('identifier',)
     list_display = ('identifier', 'description', 'gn_description', 'is_choice')
@@ -298,22 +288,9 @@ admin.site.register(CuratedThumbnail, CuratedThumbnailAdmin)
 
 
 class ResourceBaseAdminForm(autocomplete.FutureModelForm):
-    # We need to specify autocomplete='TagAutocomplete' or admin views like
-    # /admin/maps/map/2/ raise exceptions during form rendering.
-    # But if we specify it up front, TaggitField.__init__ throws an exception
-    # which prevents app startup. Therefore, we defer setting the widget until
-    # after that's done.
-
-
-    # keywords = TaggitField(required=False)
-    # keywords.widget = TaggitWidget(
-    #     autocomplete='HierarchicalKeywordAutocomplete')
-
-    # TODO Autocomplete Not entirely sure if this new way is correct not sure how to test...
-    # Think this is actually working now possibly.
     class Meta:
         widgets = {
-            'tags': autocomplete.TaggitSelect2(
-                'HierarchicalKeywordAutocomplete'
+            'keywords': autocomplete.TaggitSelect2(
+                'autocomplete_hierachical_keyword'
             )
         }

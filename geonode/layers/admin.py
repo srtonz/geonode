@@ -20,7 +20,9 @@
 
 from django.contrib import admin
 
-from geonode.base.admin import MediaTranslationAdmin, ResourceBaseAdminForm
+from modeltranslation.admin import TabbedTranslationAdmin
+
+from geonode.base.admin import ResourceBaseAdminForm
 from geonode.base.admin import metadata_batch_edit, set_batch_permissions
 from geonode.layers.models import Layer, Attribute, Style
 from geonode.layers.models import LayerFile, UploadSession
@@ -31,13 +33,12 @@ class AttributeInline(admin.TabularInline):
 
 
 class LayerAdminForm(ResourceBaseAdminForm):
-
-    class Meta:
+    class Meta(ResourceBaseAdminForm.Meta):
         model = Layer
         fields = '__all__'
 
 
-class LayerAdmin(MediaTranslationAdmin):
+class LayerAdmin(TabbedTranslationAdmin):
     list_display = (
         'id',
         'alternate',
