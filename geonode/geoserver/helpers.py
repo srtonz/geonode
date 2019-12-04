@@ -546,6 +546,7 @@ def delete_from_postgis(layer_name, store):
             logger.error("Error closing PostGIS conn %s:%s", layer_name, str(e))
 
 
+@python_2_unicode_compatible
 def gs_slurp(
         ignore_errors=True,
         verbosity=1,
