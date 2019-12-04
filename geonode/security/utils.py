@@ -27,6 +27,7 @@ import traceback
 import requests
 import models
 
+from six import string_types
 from requests.auth import HTTPBasicAuth
 from django.conf import settings
 from django.db.models import Q
@@ -158,7 +159,7 @@ def get_users_with_perms(obj):
             users[item['user_id']] = [permissions[item['permission_id']], ]
 
     profiles = {}
-    for profile in get_user_model().objects.filter(id__in=users.keys()):
+    for profile in get_user_model().objects.filter(id__in=list(users.keys())):
         profiles[profile] = users[profile.id]
 
     return profiles
@@ -449,11 +450,11 @@ def sync_geofence_with_guardian(layer, perms, user=None, group=None):
 
     _user = None
     if user:
-        _user = user if isinstance(user, basestring) else user.username
+        _user = user if isinstance(user, string_types) else user.username
     _group = None
     if group:
-        _group = group if isinstance(group, basestring) else group.name
-    for service, allowed in gf_services.iteritems():
+        _group = group if isinstance(group, string_types) else group.name
+    for service, allowed in gf_services.items():
         if allowed:
             if _user:
                 logger.debug("Adding 'user' to geofence the rule: %s %s %s" % (layer, service, _user))
