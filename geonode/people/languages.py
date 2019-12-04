@@ -18,7 +18,7 @@
 #
 #########################################################################
 
-from __future__ import unicode_literals
+
 
 # List of language code and languages local names.
 #
