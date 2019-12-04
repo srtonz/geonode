@@ -25,14 +25,35 @@ import copy
 import json
 import base64
 import pickle
-import urllib
-import urllib2
+import requests
+try:
+    from urllib.parse import urlencode
+    from urllib.request import (
+        urlopen,
+        build_opener,
+        install_opener,
+        HTTPCookieProcessor,
+        HTTPPasswordMgrWithDefaultRealm,
+        HTTPBasicAuthHandler,
+    )
+    from urllib.error import HTTPError, URLError
+except ImportError:
+    from urllib import urlencode
+    from urllib2 import (
+        urlopen,
+        build_opener,
+        install_opener,
+        HTTPCookieProcessor,
+        HTTPError,
+        HTTPPasswordMgrWithDefaultRealm,
+        HTTPBasicAuthHandler,
+        URLError,
+    )
 import logging
 import contextlib
 
 from bs4 import BeautifulSoup
-from poster.streaminghttp import register_openers
-from poster.encode import multipart_encode, MultipartParam
+from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 from django.core import mail
 from django.conf import settings
@@ -67,18 +88,12 @@ class Client(DjangoTestClient):
         self.passwd = passwd
         self.csrf_token = None
         self.response_cookies = None
-        self.opener = self._init_url_opener()
+        self.cookies = HTTPCookieProcessor()
         self.u, _ = get_user_model().objects.get_or_create(username=self.user)
         self.u.is_active = True
         self.u.email = 'admin@geonode.org'
         self.u.set_password(self.passwd)
         self.u.save()
-
-    def _init_url_opener(self):
-        self.cookies = urllib2.HTTPCookieProcessor()
-        opener = register_openers()
-        opener.add_handler(self.cookies)  # Add cookie handler
-        return opener
 
     def _login(self, user, backend=None):
         from importlib import import_module
@@ -101,7 +116,6 @@ class Client(DjangoTestClient):
         url = path if path.startswith("http") else self.url + path
         if ajax:
             url += '&force_ajax=true' if '?' in url else '?force_ajax=true'
-        request = None
         # Create a fake request to store login details.
         _request = None
         _session_id = None
@@ -122,14 +136,14 @@ class Client(DjangoTestClient):
                     # cookie.value = _request.session.session_key
                     # cookie.expires = None
                     # self.cookies.cookiejar.set_cookie(cookie)
-
+        headers = {}
         if data:
-            items = []
+            fields = {}
             # wrap post parameters
             for name, value in data.items():
                 if isinstance(value, file):
                     # add file
-                    items.append(MultipartParam.from_file(name, value.name))
+                    fields[name] = (value.name, value)
                 else:
                     if name == 'csrfmiddlewaretoken' and _request and _request.META['CSRF_COOKIE']:
                         value = _request.META['CSRF_COOKIE']
@@ -138,29 +152,24 @@ class Client(DjangoTestClient):
                             if cookie.name == 'csrftoken':
                                 cookie.value = value
                                 self.cookies.cookiejar.set_cookie(cookie)
-                    items.append(MultipartParam(name, value))
+                    fields[name] = value
                 logger.debug(" MultipartParam: %s / %s: " % (name, value))
-            datagen, headers = multipart_encode(items)
-            request = urllib2.Request(url, datagen, headers)
-        else:
-            request = urllib2.Request(url=url)
+            encoder = MultipartEncoder(fields=fields)
+            headers['Content-Type'] = encoder.content_type
 
         if self.csrf_token:
-            request.add_header('X-CSRFToken', self.csrf_token)
+            headers['X-CSRFToken'] = self.csrf_token
         if self.response_cookies:
-            request.add_header('cookie', self.response_cookies)
+            headers['cookie'] = self.response_cookies
         if ajax:
-            request.add_header('X_REQUESTED_WITH', 'XMLHttpRequest')
+            headers['X_REQUESTED_WITH'] = "XMLHttpRequest"
 
-        try:
-            return self.opener.open(request)
-        except urllib2.HTTPError as ex:
-            if not debug:
-                raise
-            logger.error('error in request to %s' % path)
-            logger.error(ex.reason)
-            logger.error(ex.read())
-            raise
+        if data:
+            response = requests.post(url, data=encoder, headers=headers)
+        else:
+            response = requests.post(url, headers=headers)
+
+        return response
 
     def get(self, path, debug=True):
         return self.make_request(path, debug=debug)
@@ -266,9 +275,9 @@ def get_web_page(url, username=None, password=None, login_url=None):
 
     if login_url:
         # Login via a form
-        cookies = urllib2.HTTPCookieProcessor()
-        opener = urllib2.build_opener(cookies)
-        urllib2.install_opener(opener)
+        cookies = HTTPCookieProcessor()
+        opener = build_opener(cookies)
+        install_opener(opener)
 
         opener.open(login_url)
 
@@ -282,7 +291,7 @@ def get_web_page(url, username=None, password=None, login_url=None):
                       this_is_the_login_form=True,
                       csrfmiddlewaretoken=token,
                       )
-        encoded_params = urllib.urlencode(params)
+        encoded_params = urlencode(params)
 
         with contextlib.closing(opener.open(login_url, encoded_params)) as f:
             f.read()
@@ -290,22 +299,22 @@ def get_web_page(url, username=None, password=None, login_url=None):
         # Login using basic auth
 
         # Create password manager
-        passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
+        passman = HTTPPasswordMgrWithDefaultRealm()
         passman.add_password(None, url, username, password)
 
         # create the handler
-        authhandler = urllib2.HTTPBasicAuthHandler(passman)
-        opener = urllib2.build_opener(authhandler)
-        urllib2.install_opener(opener)
+        authhandler = HTTPBasicAuthHandler(passman)
+        opener = build_opener(authhandler)
+        install_opener(opener)
 
     try:
-        pagehandle = urllib2.urlopen(url)
-    except urllib2.HTTPError as e:
+        pagehandle = urlopen(url)
+    except HTTPError as e:
         msg = ('The server couldn\'t fulfill the request. '
                'Error code: %s' % e.code)
         e.args = (msg,)
         raise
-    except urllib2.URLError as e:
+    except URLError as e:
         msg = 'Could not open URL "%s": %s' % (url, e)
         e.args = (msg,)
         raise
@@ -370,7 +379,7 @@ class TestSetAttributes(GeoNodeBaseTestSupport):
         set_attributes(_l, attribute_map)
 
         # 2 items in attribute_map should translate into 2 Attribute instances
-        self.assertEquals(_l.attributes.count(), len(expected_results))
+        self.assertEqual(_l.attributes.count(), len(expected_results))
 
         # The name and type should be set as provided by attribute map
         for a in _l.attributes:
