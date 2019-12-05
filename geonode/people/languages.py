@@ -18,8 +18,6 @@
 #
 #########################################################################
 
-
-
 # List of language code and languages local names.
 #
 # This list is output of code:

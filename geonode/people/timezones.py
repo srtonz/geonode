@@ -17,9 +17,6 @@
 #
 #########################################################################
 
-
-
-
 TIMEZONES = [
     ("Africa/Abidjan", "Africa/Abidjan"),
     ("Africa/Accra", "Africa/Accra"),
